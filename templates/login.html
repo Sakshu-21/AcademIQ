@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>SmartStudy AI — Login</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#1e3c72,#2a5298);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+  .card{background:rgba(255,255,255,0.08);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.15);padding:44px 40px;border-radius:24px;width:100%;max-width:400px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.3);animation:fadeUp 0.5s ease}
+  .logo{font-size:56px;margin-bottom:10px}
+  h2{font-size:26px;font-weight:700;color:white;margin-bottom:6px}
+  .sub{color:rgba(255,255,255,0.6);font-size:14px;margin-bottom:32px}
+  .label{display:block;text-align:left;font-size:12px;font-weight:600;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;margin-top:16px}
+  input{width:100%;padding:13px 16px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:12px;color:white;font-family:'Poppins',sans-serif;font-size:14px;outline:none;transition:border-color 0.2s}
+  input:focus{border-color:rgba(255,255,255,0.5)}
+  input::placeholder{color:rgba(255,255,255,0.4)}
+  .btn{width:100%;padding:14px;border:none;border-radius:12px;background:linear-gradient(135deg,#7c3aed,#4f46e5);color:white;font-family:'Poppins',sans-serif;font-weight:700;font-size:15px;cursor:pointer;margin-top:24px;transition:transform 0.2s,box-shadow 0.2s;box-shadow:0 4px 20px rgba(124,58,237,0.4)}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(124,58,237,0.5)}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">🧠</div>
+  <h2>SmartStudy AI</h2>
+  <p class="sub">Your AI-powered study companion</p>
+  <form method="POST">
+    <label class="label">Your Name</label>
+    <input type="text"  name="name"  placeholder="e.g. Rahul" required>
+    <label class="label">Email</label>
+    <input type="email" name="email" placeholder="you@example.com" required>
+    <button type="submit" class="btn">Start Studying 🚀</button>
+  </form>
+</div>
+</body>
+</html>

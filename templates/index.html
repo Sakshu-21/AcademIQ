@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>SmartStudy AI Dashboard</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Poppins',Arial,sans-serif;background:linear-gradient(135deg,#1e3c72,#2a5298);min-height:100vh;color:white}
+  .container{max-width:920px;margin:auto;padding:24px}
+
+  /* HEADER */
+  .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px}
+  .header h1{font-size:22px;font-weight:700}
+  .header-right{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .stat{background:rgba(255,255,255,0.15);padding:6px 14px;border-radius:20px;font-size:13px;font-weight:600}
+  .logout-btn{background:rgba(255,80,80,0.3);border:1px solid rgba(255,80,80,0.5);color:white;padding:6px 14px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;text-decoration:none}
+
+  /* TABS */
+  .tabs{display:flex;gap:4px;margin-bottom:24px;flex-wrap:wrap}
+  .tab{padding:9px 16px;background:rgba(255,255,255,0.1);border:none;border-radius:10px;color:rgba(255,255,255,0.7);cursor:pointer;font-family:'Poppins',sans-serif;font-size:13px;font-weight:600;transition:all 0.2s}
+  .tab:hover{background:rgba(255,255,255,0.2);color:white}
+  .tab.active{background:white;color:#1e3c72}
+
+  /* CARDS */
+  .card{background:rgba(255,255,255,0.1);padding:24px;margin-bottom:20px;border-radius:16px;backdrop-filter:blur(10px)}
+  .card h2{font-size:18px;margin-bottom:16px}
+  .section{display:none}
+  .section.active{display:block}
+
+  /* INPUTS */
+  textarea,input[type=text],input[type=email],input[type=datetime-local]{width:100%;padding:12px;border-radius:10px;border:none;margin-top:8px;background:rgba(255,255,255,0.15);color:white;font-family:'Poppins',sans-serif;font-size:14px;outline:none}
+  textarea{min-height:140px;resize:vertical}
+  textarea::placeholder,input::placeholder{color:rgba(255,255,255,0.5)}
+  input[type=datetime-local]{color-scheme:dark}
+
+  /* BUTTONS */
+  .btn{padding:10px 18px;margin:4px 4px 4px 0;border:none;border-radius:10px;font-family:'Poppins',sans-serif;font-weight:600;font-size:13px;cursor:pointer;transition:transform 0.15s,opacity 0.2s}
+  .btn:hover{transform:translateY(-2px);opacity:0.9}
+  .btn-orange{background:linear-gradient(135deg,#ff9800,#f44336);color:white}
+  .btn-purple{background:linear-gradient(135deg,#7c3aed,#4f46e5);color:white}
+  .btn-teal{background:linear-gradient(135deg,#0891b2,#0e7490);color:white}
+  .btn-green{background:linear-gradient(135deg,#16a34a,#15803d);color:white}
+  .btn-pink{background:linear-gradient(135deg,#db2777,#9d174d);color:white}
+  .btn-row{margin-top:14px;display:flex;flex-wrap:wrap;gap:4px}
+
+  /* MESSAGE */
+  .msg-correct{background:rgba(0,200,100,0.2);border:1px solid rgba(0,200,100,0.4);padding:12px 16px;border-radius:10px;margin-bottom:16px;font-weight:600}
+  .msg-wrong{background:rgba(255,80,80,0.2);border:1px solid rgba(255,80,80,0.4);padding:12px 16px;border-radius:10px;margin-bottom:16px;font-weight:600}
+
+  /* RESULT BOX */
+  .result{background:rgba(255,255,255,0.08);border-radius:12px;padding:16px;line-height:1.8;font-size:14px;white-space:pre-wrap}
+  .nugget-box{background:rgba(255,215,0,0.15);border:1px solid rgba(255,215,0,0.4);border-radius:12px;padding:16px;font-weight:600;font-size:15px;color:#ffd700}
+
+  /* QUIZ */
+  .quiz-card{margin-bottom:16px}
+  .quiz-q{font-weight:600;font-size:15px;margin-bottom:12px;line-height:1.5}
+  .opt-btn{display:block;width:100%;padding:11px 16px;margin-bottom:8px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:10px;color:white;font-family:'Poppins',sans-serif;font-size:14px;cursor:pointer;text-align:left;transition:background 0.2s,transform 0.1s}
+  .opt-btn:hover{background:rgba(255,255,255,0.2);transform:translateX(4px)}
+
+  /* FLASHCARDS */
+  .fc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;margin-top:16px}
+  .flashcard{height:160px;perspective:800px;cursor:pointer}
+  .fc-inner{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform 0.5s}
+  .flashcard.flipped .fc-inner{transform:rotateY(180deg)}
+  .fc-front,.fc-back{position:absolute;width:100%;height:100%;backface-visibility:hidden;border-radius:14px;display:flex;align-items:center;justify-content:center;text-align:center;padding:18px;font-size:14px;font-weight:500}
+  .fc-front{background:linear-gradient(135deg,rgba(124,58,237,0.4),rgba(79,70,229,0.4));border:1px solid rgba(124,58,237,0.5)}
+  .fc-back{background:linear-gradient(135deg,rgba(8,145,178,0.4),rgba(14,116,144,0.4));border:1px solid rgba(8,145,178,0.5);transform:rotateY(180deg)}
+  .fc-hint{color:rgba(255,255,255,0.5);font-size:12px;margin-bottom:10px}
+
+  /* TIMETABLE */
+  .tt-item{padding:10px 16px;margin-bottom:8px;background:rgba(255,255,255,0.08);border-left:3px solid #ff9800;border-radius:0 10px 10px 0;font-size:14px}
+  .tt-item.day-header{border-left-color:#7c3aed;font-weight:700;background:rgba(124,58,237,0.15)}
+  .subject-row{display:flex;gap:8px;margin-top:8px;align-items:center}
+  .subject-row input{margin-top:0;flex:1}
+  .remove-btn{background:rgba(255,80,80,0.3);border:none;color:white;width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:16px}
+
+  /* POMODORO */
+  .pomo-center{text-align:center;padding:10px 0}
+  .pomo-modes{display:flex;gap:8px;justify-content:center;margin-bottom:24px;flex-wrap:wrap}
+  .pomo-mode-btn{padding:8px 18px;border:2px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.1);color:white;border-radius:20px;cursor:pointer;font-family:'Poppins',sans-serif;font-weight:600;font-size:13px;transition:all 0.2s}
+  .pomo-mode-btn.active{background:white;color:#1e3c72;border-color:white}
+  .pomo-ring-wrap{position:relative;width:200px;height:200px;margin:0 auto 24px}
+  canvas#pomoRing{position:absolute;top:0;left:0}
+  .pomo-time-display{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
+  .pomo-time{font-size:42px;font-weight:700;line-height:1}
+  .pomo-label{font-size:11px;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:1px;margin-top:4px}
+  .pomo-btns{display:flex;gap:12px;justify-content:center}
+  .pomo-sessions{margin-top:20px;color:rgba(255,255,255,0.7);font-size:14px}
+
+  /* MUSIC */
+  .music-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:16px}
+  .music-card{padding:20px;border:1px solid rgba(255,255,255,0.15);border-radius:14px;cursor:pointer;text-align:center;transition:all 0.2s;background:rgba(255,255,255,0.05)}
+  .music-card:hover,.music-card.selected{background:rgba(255,255,255,0.2);border-color:rgba(255,255,255,0.4)}
+  .music-icon{font-size:32px;margin-bottom:8px}
+  .music-label{font-size:13px;font-weight:600}
+  .yt-wrap{border-radius:14px;overflow:hidden;margin-top:16px}
+  .secret-card{border-color:rgba(255,215,0,0.4)!important;background:rgba(255,215,0,0.08)!important}
+  .secret-lock{font-size:11px;color:rgba(255,215,0,0.7);margin-top:4px}
+
+  /* WEAK TOPICS */
+  .weak-item{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:rgba(255,80,80,0.1);border:1px solid rgba(255,80,80,0.2);border-radius:10px;margin-bottom:8px;font-size:14px;flex-wrap:wrap;gap:8px}
+  .weak-bar-wrap{display:flex;align-items:center;gap:8px}
+  .weak-bar{height:6px;background:rgba(255,255,255,0.15);border-radius:3px;width:100px}
+  .weak-fill{height:100%;background:linear-gradient(90deg,#ff6584,#f59e0b);border-radius:3px}
+  .weak-count{font-size:12px;color:rgba(255,255,255,0.5)}
+  .empty-state{text-align:center;padding:40px;color:rgba(255,255,255,0.5)}
+  .empty-state .icon{font-size:48px;margin-bottom:12px}
+
+  /* COIN TOAST */
+  #coin-toast{position:fixed;top:20px;right:20px;background:linear-gradient(135deg,#ffd700,#ff9800);color:#000;padding:10px 20px;border-radius:20px;font-weight:700;font-size:14px;opacity:0;transition:opacity 0.3s;z-index:999;pointer-events:none}
+</style>
+</head>
+<body>
+<div id="coin-toast">🪙 +coins!</div>
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <h1>👋 Hey, {{ name }}!</h1>
+    <div class="header-right">
+      <span class="stat">🪙 {{ coins }} coins</span>
+      <span class="stat">🎯 {{ score }} score</span>
+      <a href="/logout" class="logout-btn">🚪 Logout</a>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab {% if active_tab=='notes' %}active{% endif %}"     onclick="switchTab('notes')">📚 Notes</button>
+    <button class="tab {% if active_tab=='quiz' %}active{% endif %}"      onclick="switchTab('quiz')">🧠 Quiz</button>
+    <button class="tab {% if active_tab=='flashcards' %}active{% endif %}" onclick="switchTab('flashcards')">🃏 Flashcards</button>
+    <button class="tab {% if active_tab=='timetable' %}active{% endif %}" onclick="switchTab('timetable')">📅 Timetable</button>
+    <button class="tab {% if active_tab=='pomodoro' %}active{% endif %}"  onclick="switchTab('pomodoro')">⏱ Pomodoro</button>
+    <button class="tab {% if active_tab=='music' %}active{% endif %}"     onclick="switchTab('music')">🎧 Music</button>
+    <button class="tab {% if active_tab=='weak' %}active{% endif %}"      onclick="switchTab('weak')">⚠️ Weak Topics</button>
+  </div>
+
+  <!-- ══ NOTES TAB ══ -->
+  <div id="tab-notes" class="section {% if active_tab=='notes' %}active{% endif %}">
+    <div class="card">
+      <h2>📚 Paste Your Notes</h2>
+      <form method="POST">
+        <textarea name="notes" placeholder="Paste your study notes here..." required></textarea>
+        <div class="btn-row">
+          <button class="btn btn-purple" name="action" value="summary">✨ Summary</button>
+          <button class="btn btn-orange" name="action" value="nugget">💎 Golden Nugget</button>
+        </div>
+      </form>
+    </div>
+    {% if summary %}
+    <div class="card">
+      <h2>📖 Summary</h2>
+      <div class="result">{{ summary }}</div>
+    </div>
+    {% endif %}
+    {% if nugget %}
+    <div class="card">
+      <h2>💎 Golden Nugget</h2>
+      <div class="nugget-box">{{ nugget }}</div>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- ══ QUIZ TAB ══ -->
+  <div id="tab-quiz" class="section {% if active_tab=='quiz' %}active{% endif %}">
+    {% if message and active_tab=='quiz' %}
+      {% if message == 'correct' %}
+        <div class="msg-correct">✅ Correct! +2 coins earned! 🪙</div>
+      {% elif message.startswith('wrong') %}
+        <div class="msg-wrong">❌ Wrong! Correct answer: {{ message.split('::')[1] }}</div>
+      {% endif %}
+    {% endif %}
+
+    <div class="card">
+      <h2>🧠 Generate MCQ Quiz</h2>
+      <form method="POST">
+        <textarea name="notes" placeholder="Paste notes to generate 5 quiz questions..." required></textarea>
+        <div class="btn-row">
+          <button class="btn btn-purple" name="action" value="quiz">🎯 Generate Quiz</button>
+        </div>
+      </form>
+    </div>
+
+    {% if quiz %}
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <span style="font-weight:600">📝 {{ quiz|length }} Questions</span>
+        <span class="stat">🎯 Score: {{ score }}</span>
+      </div>
+      {% for q in quiz %}
+      <div class="card quiz-card">
+        <div class="quiz-q">Q{{ loop.index }}. {{ q.question }}</div>
+        <form method="POST">
+          {% for opt in q.options %}
+          <button class="opt-btn" name="selected" value="{{ opt }}" type="submit">{{ opt }}</button>
+          {% endfor %}
+          <input type="hidden" name="correct"  value="{{ q.answer }}">
+          <input type="hidden" name="question" value="{{ q.question }}">
+          <input type="hidden" name="action"   value="answer">
+        </form>
+      </div>
+      {% endfor %}
+    {% endif %}
+  </div>
+
+  <!-- ══ FLASHCARDS TAB ══ -->
+  <div id="tab-flashcards" class="section {% if active_tab=='flashcards' %}active{% endif %}">
+    <div class="card">
+      <h2>🃏 Flashcard Generator</h2>
+      <form method="POST">
+        <textarea name="notes" placeholder="Paste notes to create flashcards..." required></textarea>
+        <div class="btn-row">
+          <button class="btn btn-teal" name="action" value="flashcards">🃏 Generate Flashcards</button>
+        </div>
+      </form>
+    </div>
+    {% if flashcards %}
+    <div class="card">
+      <h2>🃏 Your Flashcards</h2>
+      <p class="fc-hint">👆 Click any card to flip it!</p>
+      <div class="fc-grid">
+        {% for card in flashcards %}
+        <div class="flashcard" onclick="this.classList.toggle('flipped')">
+          <div class="fc-inner">
+            <div class="fc-front">{{ card.front }}</div>
+            <div class="fc-back">{{ card.back }}</div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- ══ TIMETABLE TAB ══ -->
+  <div id="tab-timetable" class="section {% if active_tab=='timetable' %}active{% endif %}">
+    <div class="card">
+      <h2>📅 AI Timetable Generator</h2>
+      <form method="POST" id="ttForm">
+        <div id="subjectList">
+          <div class="subject-row">
+            <input type="text" name="subjects" placeholder="Subject 1 (e.g. Maths)" required>
+            <button type="button" class="remove-btn" onclick="removeSubject(this)">✕</button>
+          </div>
+          <div class="subject-row">
+            <input type="text" name="subjects" placeholder="Subject 2 (e.g. Physics)">
+            <button type="button" class="remove-btn" onclick="removeSubject(this)">✕</button>
+          </div>
+          <div class="subject-row">
+            <input type="text" name="subjects" placeholder="Subject 3 (e.g. Chemistry)">
+            <button type="button" class="remove-btn" onclick="removeSubject(this)">✕</button>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button type="button" class="btn btn-teal" onclick="addSubject()">+ Add Subject</button>
+        </div>
+        <label style="display:block;margin-top:16px;font-size:13px;opacity:0.8">📅 Exam Date & Time</label>
+        <input type="datetime-local" name="exam_time" required>
+        <div class="btn-row">
+          <button class="btn btn-green" name="action" value="timetable">🤖 Generate Timetable</button>
+        </div>
+      </form>
+    </div>
+    {% if timetable %}
+    <div class="card">
+      <h2>📋 Your Study Plan</h2>
+      {% for t in timetable %}
+        <div class="tt-item {% if '──' in t %}day-header{% endif %}">{{ t }}</div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- ══ POMODORO TAB ══ -->
+  <div id="tab-pomodoro" class="section {% if active_tab=='pomodoro' %}active{% endif %}">
+    <div class="card pomo-center">
+      <h2>⏱ Pomodoro Timer</h2>
+      <div class="pomo-modes">
+        <button class="pomo-mode-btn active" onclick="setMode('work',25)">🎯 Focus (25m)</button>
+        <button class="pomo-mode-btn"        onclick="setMode('break',5)">☕ Short Break (5m)</button>
+        <button class="pomo-mode-btn"        onclick="setMode('long',15)">😴 Long Break (15m)</button>
+      </div>
+      <div class="pomo-ring-wrap">
+        <canvas id="pomoRing" width="200" height="200"></canvas>
+        <div class="pomo-time-display">
+          <div class="pomo-time" id="pomoTime">25:00</div>
+          <div class="pomo-label" id="pomoLabel">FOCUS</div>
+        </div>
+      </div>
+      <div class="pomo-btns">
+        <button class="btn btn-purple" onclick="togglePomo()">▶ Start</button>
+        <button class="btn btn-pink"   onclick="resetPomo()">🔄 Reset</button>
+      </div>
+      <div class="pomo-sessions" id="pomoSessions">Sessions completed: 0</div>
+    </div>
+  </div>
+
+  <!-- ══ MUSIC TAB ══ -->
+  <div id="tab-music" class="section {% if active_tab=='music' %}active{% endif %}">
+    <div class="card">
+      <h2>🎧 Focus Music</h2>
+      <p style="font-size:13px;opacity:0.6;margin-bottom:16px">👆 Click a vibe — opens in a new YouTube tab!</p>
+        <div class="music-grid">
+          <div class="music-card {% if music=='lofi' %}selected{% endif %}" onclick="pickMusic('lofi',this)">
+            <div class="music-icon">🎵</div>
+            <div class="music-label">Lo-Fi Chill</div>
+          </div>
+          <div class="music-card {% if music=='epic' %}selected{% endif %}" onclick="pickMusic('epic',this)">
+            <div class="music-icon">⚡</div>
+            <div class="music-label">Epic Focus</div>
+          </div>
+          <div class="music-card {% if music=='deep' %}selected{% endif %}" onclick="pickMusic('deep',this)">
+            <div class="music-icon">🌊</div>
+            <div class="music-label">Deep Focus</div>
+          </div>
+          <div class="music-card {% if music=='chill' %}selected{% endif %}" onclick="pickMusic('chill',this)">
+            <div class="music-icon">🌙</div>
+            <div class="music-label">Chill Beats</div>
+          </div>
+          {% if coins >= 5 %}
+          <div class="music-card secret-card {% if music=='secret' %}selected{% endif %}" onclick="pickMusic('secret',this)">
+            <div class="music-icon">🔥</div>
+            <div class="music-label">Secret Playlist</div>
+            <div class="secret-lock">✨ Unlocked!</div>
+          </div>
+          {% else %}
+          <div class="music-card secret-card" style="opacity:0.5;cursor:not-allowed">
+            <div class="music-icon">🔒</div>
+            <div class="music-label">Secret Playlist</div>
+            <div class="secret-lock">{{ coins }}/5 coins</div>
+          </div>
+          {% endif %}
+        </div>
+    </div>
+  </div>
+
+  <!-- ══ WEAK TOPICS TAB ══ -->
+  <div id="tab-weak" class="section {% if active_tab=='weak' %}active{% endif %}">
+    <div class="card">
+      <h2>⚠️ Topics to Review</h2>
+      {% if weak_topics %}
+        <p style="font-size:13px;opacity:0.7;margin-bottom:16px">Based on your wrong quiz answers this session:</p>
+        {% set counts = {} %}
+        {% for t in weak_topics %}{% if counts.update({t: counts.get(t,0)+1}) %}{% endif %}{% endfor %}
+        {% set max_count = counts.values()|max %}
+        {% for topic, count in counts.items()|sort(attribute='1',reverse=true) %}
+        <div class="weak-item">
+          <span style="flex:1;margin-right:12px">{{ topic }}…</span>
+          <div class="weak-bar-wrap">
+            <div class="weak-bar"><div class="weak-fill" style="width:{{ (count/max_count*100)|int }}%"></div></div>
+            <span class="weak-count">{{ count }}x wrong</span>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="empty-state">
+          <div class="icon">🎯</div>
+          <div>No weak topics yet!</div>
+          <div style="font-size:13px;margin-top:8px">Take a quiz and your mistakes will show up here.</div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<script>
+// ── TAB SWITCHING ──
+function switchTab(name) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ── TIMETABLE: add/remove subjects ──
+function addSubject() {
+  const list = document.getElementById('subjectList');
+  const n = list.children.length + 1;
+  const row = document.createElement('div');
+  row.className = 'subject-row';
+  row.innerHTML = `<input type="text" name="subjects" placeholder="Subject ${n}">
+                   <button type="button" class="remove-btn" onclick="removeSubject(this)">✕</button>`;
+  list.appendChild(row);
+}
+function removeSubject(btn) {
+  const list = document.getElementById('subjectList');
+  if (list.children.length > 1) btn.parentElement.remove();
+}
+
+// ── MUSIC: open YouTube in new tab ──
+const ytLinks = {
+  lofi:   'https://www.youtube.com/watch?v=jfKfPfyJRdk',
+  epic:   'https://www.youtube.com/watch?v=1ZYbU82GVz4',
+  deep:   'https://www.youtube.com/watch?v=5qap5aO4i9A',
+  chill:  'https://www.youtube.com/watch?v=DWcJFNfaw9c',
+  secret: 'https://www.youtube.com/watch?v=hHW1oY26kxQ'
+};
+function pickMusic(genre, el) {
+  document.querySelectorAll('.music-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  window.open(ytLinks[genre], '_blank');
+}
+
+// ── POMODORO ──
+let pomoSecs = 25*60, pomoTotal = 25*60, pomoRunning = false, pomoTimer = null, pomoSessions = 0, pomoMode = 'work';
+const canvas = document.getElementById('pomoRing');
+const ctx = canvas ? canvas.getContext('2d') : null;
+
+function drawRing(pct) {
+  if (!ctx) return;
+  ctx.clearRect(0,0,200,200);
+  ctx.beginPath(); ctx.arc(100,100,88,0,Math.PI*2);
+  ctx.strokeStyle='rgba(255,255,255,0.1)'; ctx.lineWidth=12; ctx.stroke();
+  ctx.beginPath(); ctx.arc(100,100,88,-Math.PI/2,-Math.PI/2 + Math.PI*2*pct);
+  ctx.strokeStyle = pomoMode==='work' ? '#7c3aed' : pomoMode==='break' ? '#0891b2' : '#16a34a';
+  ctx.lineWidth=12; ctx.lineCap='round'; ctx.stroke();
+}
+
+function updateDisplay() {
+  const mm = String(Math.floor(pomoSecs/60)).padStart(2,'0');
+  const ss = String(pomoSecs%60).padStart(2,'0');
+  document.getElementById('pomoTime').textContent = mm+':'+ss;
+  drawRing((pomoTotal-pomoSecs)/pomoTotal);
+}
+
+function setMode(mode, mins) {
+  clearInterval(pomoTimer); pomoRunning=false;
+  pomoMode=mode; pomoSecs=mins*60; pomoTotal=mins*60;
+  document.getElementById('pomoLabel').textContent = mode==='work'?'FOCUS':mode==='break'?'REST':'LONG REST';
+  document.querySelectorAll('.pomo-mode-btn').forEach(b=>b.classList.remove('active'));
+  event.target.classList.add('active');
+  document.querySelector('[onclick="togglePomo()"]').textContent='▶ Start';
+  updateDisplay();
+}
+
+function togglePomo() {
+  if (pomoRunning) {
+    clearInterval(pomoTimer); pomoRunning=false;
+    event.target.textContent='▶ Start';
+  } else {
+    pomoRunning=true; event.target.textContent='⏸ Pause';
+    pomoTimer = setInterval(()=>{
+      if (pomoSecs <= 0) {
+        clearInterval(pomoTimer); pomoRunning=false;
+        document.querySelector('[onclick="togglePomo()"]').textContent='▶ Start';
+        if (pomoMode==='work') { pomoSessions++; document.getElementById('pomoSessions').textContent='Sessions completed: '+pomoSessions+' 🏆'; }
+        return;
+      }
+      pomoSecs--; updateDisplay();
+    },1000);
+  }
+}
+
+function resetPomo() {
+  clearInterval(pomoTimer); pomoRunning=false;
+  pomoSecs=pomoTotal; updateDisplay();
+  document.querySelector('[onclick="togglePomo()"]').textContent='▶ Start';
+}
+
+// init ring
+drawRing(0);
+
+// ── COIN TOAST ──
+{% if message and message == 'correct' %}
+  const toast = document.getElementById('coin-toast');
+  toast.textContent = '🪙 +2 coins!';
+  toast.style.opacity='1';
+  setTimeout(()=>toast.style.opacity='0', 2000);
+{% endif %}
+{% if active_tab in ['notes','flashcards','timetable'] %}
+  const toast2 = document.getElementById('coin-toast');
+  toast2.textContent = '🪙 +1 coin!';
+  toast2.style.opacity='1';
+  setTimeout(()=>toast2.style.opacity='0', 2000);
+{% endif %}
+</script>
+</body>
+</html>
