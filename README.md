@@ -1,4 +1,4 @@
-#  SmartStudy AI
+#  AcademIQ: SmartStudyAI
 
 An AI-powered study companion built with Python & Flask that helps students study smarter.
 
@@ -10,7 +10,7 @@ An AI-powered study companion built with Python & Flask that helps students stud
 - 📅 AI Timetable Generator based on subjects & exam date
 - ⏱ Pomodoro Timer with circular progress ring
 - 🎧 Focus Music — opens curated YouTube playlists
-- ⚠️ Weak Topics Tracker — tracks your wrong answers
+- ⚠️ Weak Topics Tracker — tracks your wrong anSswers
 - 🪙 Coin reward system with secret playlist unlock
 
 ##  Built With
